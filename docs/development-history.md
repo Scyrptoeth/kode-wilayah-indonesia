@@ -2,6 +2,25 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Export hierarchy, GitHub data repo, and full delivery
+
+- Implemented **Export selected hierarchy** feature:
+  - Added `src/lib/export.ts` with `HierarchyPath`, `hierarchyToJson`, `hierarchyToCsv`, and `downloadText` helpers.
+  - Added `src/components/export-hierarchy.tsx` dropdown with JSON and CSV export options.
+  - Integrated `ExportHierarchy` into `RegionExplorer` toolbar.
+  - Added unit tests for JSON and CSV formatting in `src/lib/regions.test.ts`.
+- Published independent data repository to GitHub: `https://github.com/Scyrptoeth/wilayah-indonesia-data`.
+- Updated `scripts/sync-data.mjs` to successfully clone from the public GitHub repository during `npm run build`.
+- Pushed application changes to `Scyrptoeth/kode-wilayah-indonesia` at commits:
+  - `9b84add` — feat: independent data repo, theme modes, deep-link sharing, mobile UX polish, fuzzy search, and export hierarchy
+  - `6d4d7f6` — fix: split export helpers into client-safe lib/export.ts
+- Re-ran verification stack after all changes:
+  - `npm test` — 14/14 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed with successful GitHub data sync.
+- Updated docs: `docs/next-actions.md`.
+
 ## 2026-06-23 — Independent data repository, theme modes, deep-link sharing, mobile UX polish, and fuzzy search
 
 - Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.

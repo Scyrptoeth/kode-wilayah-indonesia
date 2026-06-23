@@ -3,23 +3,24 @@
 The active list is updated after the latest development session.
 Completed or deprioritized actions are removed; only implementable work remains.
 
-## P1 — Push independent data repository to GitHub
+## P2 — Automated data refresh workflow
 
-- **Outcome:** Create the public repository `Scyrptoeth/wilayah-indonesia-data` and push the generated dataset so the build-time sync script can clone from GitHub instead of falling back to local files.
-- **Why now:** The data repository structure and sync script are ready, but the GitHub repository does not exist yet. Until it exists, `npm run build` will log a fallback warning.
-- **Prerequisite:** Local data mirror exists at `/Users/persiapantubel/Desktop/codex/wilayah-indonesia-data` with README and data-contract.
+- **Outcome:** Provide a repeatable script or GitHub Actions workflow that fetches the latest Kepmendagri release, validates counts, and opens a PR against `Scyrptoeth/wilayah-indonesia-data`.
+- **Why now:** The independent data repository is live, but there is no documented update path when Kepmendagri publishes a new regulation.
+- **Prerequisite:** Data repo `Scyrptoeth/wilayah-indonesia-data` exists and the sync script is functional.
 - **Acceptance criteria:**
-  - Repository `Scyrptoeth/wilayah-indonesia-data` is public on GitHub.
-  - `npm run build` clones the repository successfully without fallback.
-  - Data counts remain 38/514/7.265/83.345 after sync.
-- **Risk if deferred:** The "independent database" goal is only half-completed; deployments still rely on committed data files.
+  - A single command regenerates all JSON files from an authoritative source.
+  - Count validation fails the build if coverage drops unexpectedly.
+  - The workflow produces a clear diff and version bump in `data-contract.md`.
+- **Risk if deferred:** Manual updates remain error-prone and discourage keeping the dataset current.
 
-## P2 — Export selected hierarchy
+## P2 — Accessibility and UX refinements
 
-- **Outcome:** Allow users to copy or download the current selection as JSON or CSV.
-- **Why now:** Complements the new share button and gives power users a way to paste structured data into forms or spreadsheets.
-- **Prerequisite:** Selection state and path names are already computed in `RegionExplorer`.
+- **Outcome:** Audit keyboard navigation, focus traps, and screen-reader announcements across the explorer, search, export, and theme toggle.
+- **Why now:** New interactive elements (theme toggle, share, export dropdown, mobile back button) need verified accessibility.
+- **Prerequisite:** All new UI components are in place.
 - **Acceptance criteria:**
-  - A dropdown or secondary button exposes "Salin JSON" and "Salin CSV" options.
-  - Exported data includes codes and names for every selected level.
-- **Risk if deferred:** Users continue to copy codes one by one.
+  - Export dropdown is keyboard operable (Esc to close, Enter to select).
+  - Focus returns sensibly after selecting a search result or copying a code.
+  - Color contrast passes WCAG AA in both light and dark modes.
+- **Risk if deferred:** Users relying on assistive technology may encounter friction with the new controls.
