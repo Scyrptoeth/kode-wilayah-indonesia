@@ -35,7 +35,7 @@ export function SiteFooter() {
         </p>
         <nav className="site-footer-links" aria-label="Tautan pendukung">
           <a
-            href="https://github.com/Scyrptoeth/kode-wilayah-indonesia"
+            href="https://persiapantubel.com"
             rel="noreferrer"
             target="_blank"
           >
