@@ -9,6 +9,7 @@ interface VirtualListProps<T> {
   renderItem: (item: T, index: number) => React.ReactNode;
   getItemKey: (item: T, index: number) => string;
   selectedIndex?: number;
+  label?: string;
 }
 
 export function VirtualList<T>({
@@ -18,6 +19,7 @@ export function VirtualList<T>({
   renderItem,
   getItemKey,
   selectedIndex,
+  label = "Daftar wilayah",
 }: VirtualListProps<T>) {
   const [containerHeight, setContainerHeight] = useState(520);
   const [scrollTop, setScrollTop] = useState(0);
@@ -71,6 +73,7 @@ export function VirtualList<T>({
     <div
       ref={containerRef}
       className="virtual-list-container"
+      aria-label={label}
       onScroll={handleScroll}
     >
       <div style={{ height: totalHeight, position: "relative" }}>

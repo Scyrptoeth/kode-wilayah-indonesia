@@ -73,6 +73,7 @@ export function RegionColumn({
   const controlId = levelLabel.replaceAll(" ", "-").replaceAll("/", "-");
   const titleId = `column-${controlId}`;
   const listRef = useRef<HTMLUListElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const filteredRegions = useMemo(() => {
     if (!deferredQuery) return regions;
@@ -89,6 +90,11 @@ export function RegionColumn({
   );
 
   const shouldVirtualize = virtualize && filteredRegions.length > virtualizeThreshold;
+
+  useEffect(() => {
+    if (!mobileActive) return;
+    sectionRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [mobileActive]);
 
   useEffect(() => {
     if (!mobileActive || mobileStepIndex === undefined || shouldVirtualize) return;
@@ -137,6 +143,7 @@ export function RegionColumn({
 
   return (
     <section
+      ref={sectionRef}
       className={`region-column${mobileActive ? " is-mobile-active" : ""}${mobileActive === false ? " is-mobile-hidden" : ""}`}
       aria-labelledby={titleId}
     >
@@ -219,6 +226,7 @@ export function RegionColumn({
               selectedIndex={selectedIndex >= 0 ? selectedIndex : undefined}
               getItemKey={(region) => region.code}
               renderItem={(region) => renderRegionRow(region)}
+              label={`Daftar ${levelLabel}`}
             />
           ) : (
             <ul className="region-list" ref={listRef}>

@@ -426,6 +426,13 @@ input:focus-visible {
   white-space: nowrap;
 }
 
+.search-highlight {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent-strong);
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
 .global-search-result-level {
   flex-shrink: 0;
   border-radius: 999px;

@@ -65,10 +65,37 @@ function formatPath(path: { name: string }[]): string {
   return path.map((segment) => segment.name).join(" › ");
 }
 
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function HighlightName({ name, query }: { name: string; query: string }) {
+  const trimmed = query.trim();
+  if (!trimmed) return <>{name}</>;
+
+  const normalized = trimmed.toLocaleLowerCase("id-ID");
+  const regex = new RegExp(`(${escapeRegExp(normalized)})`, "gi");
+  const parts = name.split(regex);
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.toLocaleLowerCase("id-ID") === normalized ? (
+          <mark key={index} className="search-highlight">
+            {part}
+          </mark>
+        ) : (
+          <span key={index}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 export function GlobalSearch({ onSelect }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,9 +119,9 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
         throw new Error("error" in payload && payload.error ? payload.error : "Pencarian gagal.");
       }
       setResults(payload.data);
-      setStatus("success" as "idle");
+      setStatus("success");
       setActiveIndex(-1);
-      setIsOpen(payload.data.length > 0);
+      setIsOpen(true);
     } catch {
       setStatus("error");
       setResults([]);
@@ -229,6 +256,12 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
         </div>
       ) : null}
 
+      {isOpen && status === "success" && results.length === 0 ? (
+        <div className="global-search-status" role="status">
+          Tidak ada hasil untuk &quot;{query.trim()}&quot;.
+        </div>
+      ) : null}
+
       {isOpen && results.length > 0 ? (
         <ul
           ref={listRef}
@@ -250,7 +283,9 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
                 onClick={() => selectResult(result)}
               >
                 <div className="global-search-result-main">
-                  <span className="global-search-result-name">{result.name}</span>
+                  <span className="global-search-result-name">
+                    <HighlightName name={result.name} query={query} />
+                  </span>
                   <span className="global-search-result-level">{LEVEL_LABELS[result.level]}</span>
                 </div>
                 <div className="global-search-result-meta">

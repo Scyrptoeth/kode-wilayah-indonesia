@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
 import { DownloadSimple } from "@phosphor-icons/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   downloadText,
   hierarchyToCsv,
@@ -19,8 +19,36 @@ type ExportFormat = "json" | "csv";
 export function ExportHierarchy({ path, disabled }: ExportHierarchyProps) {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const hasSelection = Boolean(path.province);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+      if (!(event.target instanceof Node)) return;
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleExport = useCallback(
     (format: ExportFormat) => {
@@ -42,6 +70,7 @@ export function ExportHierarchy({ path, disabled }: ExportHierarchyProps) {
   return (
     <div className="export-hierarchy" ref={rootRef}>
       <button
+        ref={buttonRef}
         type="button"
         className="export-button"
         onClick={() => setIsOpen((current) => !current)}
@@ -56,7 +85,7 @@ export function ExportHierarchy({ path, disabled }: ExportHierarchyProps) {
       </button>
 
       {isOpen ? (
-        <ul className="export-menu" role="menu" aria-label="Format ekspor">
+        <ul ref={menuRef} className="export-menu" role="menu" aria-label="Format ekspor">
           <li role="none">
             <button
               type="button"
