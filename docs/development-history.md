@@ -18,3 +18,6 @@ Verified development entries are appended by the `update-kode-wilayah-indonesia`
 - Created skill files:
   - `/Users/persiapantubel/.agents/skills/start-kode-wilayah-indonesia/SKILL.md`
   - `/Users/persiapantubel/.agents/skills/update-kode-wilayah-indonesia/SKILL.md`
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-scyrptoeths-projects.vercel.app
+- Verified live endpoints for province, regency, district, and village levels.
