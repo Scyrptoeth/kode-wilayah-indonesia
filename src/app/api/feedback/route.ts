@@ -1,8 +1,8 @@
 import {
-  isCentralFeedbackStorageConfigured,
-  readCentralAnonymousFeedback,
-  recordCentralAnonymousFeedback,
-} from "@/lib/feedbackAnalytics.server";
+  isFeedbackDatabaseConfigured,
+  readAnonymousFeedback,
+  recordAnonymousFeedback,
+} from "@/lib/feedbackDatabase.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,7 +43,7 @@ function getErrorStatus(error: unknown) {
     return 400;
   }
 
-  if (message === "central_feedback_storage_not_configured") {
+  if (message === "feedback_database_not_configured") {
     return 503;
   }
 
@@ -51,8 +51,8 @@ function getErrorStatus(error: unknown) {
 }
 
 export async function GET(request: Request) {
-  if (!isCentralFeedbackStorageConfigured()) {
-    return jsonResponse({ ok: false, error: "central_feedback_storage_not_configured" }, 503);
+  if (!isFeedbackDatabaseConfigured()) {
+    return jsonResponse({ ok: false, error: "feedback_database_not_configured" }, 503);
   }
 
   if (!process.env.KODE_WILAYAH_ADMIN_TOKEN) {
@@ -64,8 +64,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const feedback = await readCentralAnonymousFeedback();
-    return jsonResponse({ ok: true, source: "central", ...feedback });
+    const feedback = await readAnonymousFeedback();
+    return jsonResponse({ ok: true, source: "database", ...feedback });
   } catch (error) {
     return jsonResponse(
       { ok: false, error: error instanceof Error ? error.message : "unknown_error" },
@@ -75,8 +75,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isCentralFeedbackStorageConfigured()) {
-    return jsonResponse({ ok: false, error: "central_feedback_storage_not_configured" }, 503);
+  if (!isFeedbackDatabaseConfigured()) {
+    return jsonResponse({ ok: false, error: "feedback_database_not_configured" }, 503);
   }
 
   let body: FeedbackBody;
@@ -92,8 +92,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const feedback = await recordCentralAnonymousFeedback(body.message);
-    return jsonResponse({ ok: true, source: "central", feedback });
+    const feedback = await recordAnonymousFeedback(body.message);
+    return jsonResponse({ ok: true, source: "database", feedback });
   } catch (error) {
     return jsonResponse(
       { ok: false, error: error instanceof Error ? error.message : "unknown_error" },

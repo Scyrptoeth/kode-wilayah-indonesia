@@ -119,8 +119,8 @@ function getErrorMessage(error: string) {
   if (error === "unauthorized") {
     return "Token admin tidak valid.";
   }
-  if (error === "central_feedback_storage_not_configured") {
-    return "Storage feedback belum terhubung. Hubungi developer aplikasi.";
+  if (error === "feedback_database_not_configured") {
+    return "Database feedback belum terhubung. Hubungi developer aplikasi.";
   }
   if (error === "admin_token_not_configured") {
     return "Token admin belum dikonfigurasi di server.";

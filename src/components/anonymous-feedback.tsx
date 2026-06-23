@@ -12,8 +12,8 @@ function getAnonymousFeedbackErrorMessage(error: string | null) {
     return null;
   }
 
-  if (error === "central_feedback_storage_not_configured") {
-    return "Feedback belum dapat dikirim karena storage terpusat belum aktif.";
+  if (error === "feedback_database_not_configured") {
+    return "Feedback belum dapat dikirim karena database belum aktif.";
   }
 
   if (error === "invalid_feedback") {
