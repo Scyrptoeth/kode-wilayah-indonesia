@@ -7,7 +7,6 @@ import { useTheme } from "@/components/theme-provider";
 
 const navItems = [
   { href: "/", label: "Wilayah" },
-  { href: "/dokumentasi", label: "Dokumentasi" },
   { href: "/faq", label: "FAQ" },
 ];
 

@@ -1357,6 +1357,14 @@ input:focus-visible {
   font-size: 12px;
 }
 
+.site-footer-whatsapp svg {
+  color: #08c867;
+}
+
+.site-footer-email svg {
+  color: var(--accent);
+}
+
 .developer-page {
   display: grid;
   gap: 20px;
