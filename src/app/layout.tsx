@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans } from "next/font/google";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "@/components/theme-script";
@@ -99,12 +100,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div className="site-shell">
             <SiteHeader />
             {children}
-            <footer className="site-footer">
-              <div className="page-container footer-inner">
-                <p>Kode Wilayah Indonesia</p>
-                <p>Data dimuat sesuai pilihan untuk menjaga aplikasi tetap cepat.</p>
-              </div>
-            </footer>
+            <SiteFooter />
           </div>
         </ThemeProvider>
       </body>

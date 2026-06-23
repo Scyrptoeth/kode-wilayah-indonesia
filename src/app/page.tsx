@@ -1,3 +1,4 @@
+import { AnonymousFeedback } from "@/components/anonymous-feedback";
 import { RegionExplorer } from "@/components/region-explorer";
 import { fetchRegions, type InitialSelection, type RegionLevel } from "@/lib/regions";
 import type { Metadata } from "next";
@@ -129,6 +130,8 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           verifikasi kembali dengan sumber pemerintah resmi untuk penggunaan kritis.
         </p>
       </aside>
+
+      <AnonymousFeedback />
     </main>
   );
 }
