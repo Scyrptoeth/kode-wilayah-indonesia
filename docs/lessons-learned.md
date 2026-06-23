@@ -30,6 +30,20 @@ Reusable lessons are added only after a verified implementation or release resul
 - **Reusable rule:** Run `typecheck`, `lint`, `test`, and `build` in sequence before pushing or deploying.
 - **Evidence:** All four commands pass for commit `4001762c1ba41420dd3cef3b1babda1b02c61ac4`, and the Vercel deployment built successfully from the same tree.
 
+## 6. Global search over static files should avoid monolithic build-time indexes
+
+- **Observed condition:** An initial attempt pre-built a single `search-index.json` file for global search, producing a ~16 MB asset.
+- **Why the prior approach was insufficient:** The file bloats the repository and deployment package, and reading the entire index into memory for every search request is wasteful for a dataset that is already split into logical files.
+- **Reusable rule:** For static reference data, filter the existing source files directly with early termination, sort and limit results, and rely on long-lived HTTP cache for repeated queries instead of shipping a separate search index.
+- **Evidence:** `src/lib/search.ts` reads `provinces.json`, `regencies.json`, `districts.json`, and only the relevant `villages/{regencyCode}.json` files; `/api/regions?level=search&q=jawa` returns 20 ranked results in production.
+
+## 7. Virtualization should be opt-in based on list length
+
+- **Observed condition:** A virtual list component was considered for every region column.
+- **Why the prior approach was insufficient:** Virtual lists add `ResizeObserver`, absolute positioning, and scroll-sync complexity that is unnecessary for short lists and can complicate accessibility and keyboard navigation.
+- **Reusable rule:** Only virtualize lists that exceed a concrete item threshold; keep native rendering for shorter lists to preserve standard list semantics and reduce complexity.
+- **Evidence:** `RegionColumn` enables virtualization only for the village column when `filteredRegions.length > 100`; the other columns continue to render a native `<ul>`.
+
 ## 5. Hierarchical selection needs a dedicated mobile wizard
 
 - **Observed condition:** On narrow viewports, stacking four short columns forced users to scroll repeatedly and made it hard to track which level they were selecting.

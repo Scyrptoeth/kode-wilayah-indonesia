@@ -3,12 +3,6 @@
 The active list is updated after the latest development session.
 Completed or deprioritized actions are removed; only implementable work remains.
 
-## In Progress / Recently Delivered
-
-- **Global search across all administrative levels** — Implemented via `/api/regions?level=search&q={term}` and `GlobalSearch` component.
-- **SEO metadata and social sharing** — Implemented via `generateMetadata`, Open Graph / Twitter images, and `WebSite` structured data.
-- **Virtualization for long village lists** — Implemented via lightweight custom virtual list for the village column.
-
 ## P2 — Deep-link sharing improvements
 
 - **Outcome:** Enhance URL state serialization with clearer slugs, social-card metadata per selection, and share button.
