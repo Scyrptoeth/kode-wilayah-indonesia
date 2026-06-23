@@ -1,9 +1,23 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dokumentasi | Kode Wilayah Indonesia",
+  title: "Dokumentasi",
   description:
     "Kontrak data, kebijakan cache, dan keterbatasan dataset kode wilayah administratif Indonesia.",
+  openGraph: {
+    title: "Dokumentasi | Kode Wilayah Indonesia",
+    description:
+      "Kontrak data, kebijakan cache, dan keterbatasan dataset kode wilayah administratif Indonesia.",
+    url: "/dokumentasi",
+  },
+  twitter: {
+    title: "Dokumentasi | Kode Wilayah Indonesia",
+    description:
+      "Kontrak data, kebijakan cache, dan keterbatasan dataset kode wilayah administratif Indonesia.",
+  },
+  alternates: {
+    canonical: "/dokumentasi",
+  },
 };
 
 export default function DocumentationPage() {

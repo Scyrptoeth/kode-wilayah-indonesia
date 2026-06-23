@@ -1,9 +1,23 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FAQ | Kode Wilayah Indonesia",
+  title: "FAQ",
   description:
     "Pertanyaan umum seputar kode wilayah administratif Indonesia dan cara menggunakan penjelajah wilayah.",
+  openGraph: {
+    title: "FAQ | Kode Wilayah Indonesia",
+    description:
+      "Pertanyaan umum seputar kode wilayah administratif Indonesia dan cara menggunakan penjelajah wilayah.",
+    url: "/faq",
+  },
+  twitter: {
+    title: "FAQ | Kode Wilayah Indonesia",
+    description:
+      "Pertanyaan umum seputar kode wilayah administratif Indonesia dan cara menggunakan penjelajah wilayah.",
+  },
+  alternates: {
+    canonical: "/faq",
+  },
 };
 
 interface FaqItem {

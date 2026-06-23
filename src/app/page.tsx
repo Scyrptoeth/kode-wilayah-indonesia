@@ -1,10 +1,73 @@
 import { RegionExplorer } from "@/components/region-explorer";
-import type { InitialSelection } from "@/lib/regions";
+import { fetchRegions, type InitialSelection, type RegionLevel } from "@/lib/regions";
+import type { Metadata } from "next";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+async function fetchRegionName(level: RegionLevel, code: string | undefined) {
+  if (!code) return undefined;
+  try {
+    const parentLength: Record<RegionLevel, string> = {
+      provinces: "",
+      regencies: code.slice(0, 2),
+      districts: code.slice(0, 4),
+      villages: code.slice(0, 6),
+    };
+    const regions = await fetchRegions(level, parentLength[level] || null);
+    return regions.find((region) => region.code === code)?.name;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const provinceCode = firstValue(params.province);
+  const regencyCode = firstValue(params.regency);
+  const districtCode = firstValue(params.district);
+  const villageCode = firstValue(params.village);
+
+  const [provinceName, regencyName, districtName, villageName] = await Promise.all([
+    fetchRegionName("provinces", provinceCode),
+    fetchRegionName("regencies", regencyCode),
+    fetchRegionName("districts", districtCode),
+    fetchRegionName("villages", villageCode),
+  ]);
+
+  const path = [provinceName, regencyName, districtName, villageName].filter(Boolean);
+  const hasSelection = path.length > 0;
+
+  const title = hasSelection
+    ? `${path.join(" › ")} — Kode Wilayah Indonesia`
+    : "Kode Wilayah Indonesia";
+  const description = hasSelection
+    ? `Lihat kode wilayah ${path.join(" › ")} dari data Kepmendagri 2025. Telusuri provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan di seluruh Indonesia.`
+    : "Telusuri kode provinsi, kabupaten atau kota, kecamatan, dan desa atau kelurahan di seluruh Indonesia berdasarkan Kepmendagri 2025.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: "/",
+    },
+    twitter: {
+      title,
+      description,
+    },
+    alternates: {
+      canonical: "/",
+    },
+  };
 }
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
