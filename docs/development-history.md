@@ -2,6 +2,25 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Verification and documentation refresh
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `661433d`.
+- Re-ran verification stack:
+  - `npm test` — 14/14 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed with successful GitHub data sync.
+- Verified live deployment at `https://kode-wilayah-indonesia-ecru.vercel.app` on 2026-06-23T17:50:25Z:
+  - Home (`/`): HTTP 200.
+  - `/developer`: HTTP 200.
+  - `/faq`: HTTP 200.
+  - `/api/feedback` with Bearer token: HTTP 200.
+- Commit on `main`: `661433d` — docs: update history, lessons learned, and next actions after Neon migration.
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-ecru.vercel.app (production deployment `kode-wilayah-indonesia-66iv06vcr-scyrptoeths-projects.vercel.app`).
+- Updated docs: `docs/development-history.md`.
+
 ## 2026-06-23 — Provision Neon Postgres and fix feedback storage
 
 - Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
