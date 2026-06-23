@@ -2,6 +2,7 @@
 
 import { MapTrifold } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { GlobalSearch, type GlobalSearchSelection } from "@/components/global-search";
 import { RegionColumn, type ColumnStatus } from "@/components/region-column";
 import type {
   InitialSelection,
@@ -243,6 +244,11 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
     setMobileStep(0);
   }
 
+  function handleSearchSelect(next: GlobalSearchSelection) {
+    setSelection(next);
+    setMobileStep(stepIndexForSelection(next));
+  }
+
   function stepStatus(stepIndex: number): "complete" | "active" | "pending" {
     const currentStep = stepIndexForSelection(selection);
     if (stepIndex < currentStep) return "complete";
@@ -252,6 +258,8 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
 
   return (
     <section className="explorer-shell" aria-label="Penjelajah kode wilayah Indonesia">
+      <GlobalSearch onSelect={handleSearchSelect} />
+
       <div className="explorer-toolbar">
         <div className="selection-path" aria-live="polite">
           <MapTrifold size={20} weight="duotone" aria-hidden="true" />
@@ -335,6 +343,7 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
               onSelect={(region) => handleSelect(step, region)}
               mobileActive={index === mobileStep}
               mobileStepIndex={index}
+              virtualize={step.key === "village"}
             />
           );
         })}
