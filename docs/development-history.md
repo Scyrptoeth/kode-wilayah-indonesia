@@ -21,3 +21,21 @@ Verified development entries are appended by the `update-kode-wilayah-indonesia`
 - Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
 - Deployed to Vercel: https://kode-wilayah-indonesia-scyrptoeths-projects.vercel.app
 - Verified live endpoints for province, regency, district, and village levels.
+
+## 2026-06-23 — Documentation audit and deployment verification
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `4001762c1ba41420dd3cef3b1babda1b02c61ac4`.
+- Re-ran verification stack:
+  - `npm test` — 7/7 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed.
+- Verified live deployment at `https://kode-wilayah-indonesia-scyrptoeths-projects.vercel.app` on 2026-06-23T09:06:33Z:
+  - Home: HTTP 200.
+  - `/api/regions?level=provinces`: HTTP 200.
+  - `/api/regions?level=regencies&parent=11`: HTTP 200.
+  - `/api/regions?level=districts&parent=1101`: HTTP 200.
+  - `/api/regions?level=villages&parent=110101`: HTTP 200.
+- Refactored `docs/next-actions.md` into prioritized P0/P1/P2 items with acceptance criteria, dependencies, and risks.
+- No source-code changes were made during this session.
