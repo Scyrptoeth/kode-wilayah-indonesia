@@ -23,6 +23,45 @@ interface Selection {
   village?: string;
 }
 
+interface Step {
+  key: keyof Selection;
+  title: string;
+  level: RegionLevel;
+  levelLabel: string;
+  placeholder: string;
+}
+
+const STEPS: Step[] = [
+  {
+    key: "province",
+    title: "Provinsi",
+    level: "provinces",
+    levelLabel: "provinsi",
+    placeholder: "Cari provinsi…",
+  },
+  {
+    key: "regency",
+    title: "Kabupaten / Kota",
+    level: "regencies",
+    levelLabel: "kabupaten atau kota",
+    placeholder: "Cari kabupaten atau kota…",
+  },
+  {
+    key: "district",
+    title: "Kecamatan",
+    level: "districts",
+    levelLabel: "kecamatan",
+    placeholder: "Cari kecamatan…",
+  },
+  {
+    key: "village",
+    title: "Desa / Kelurahan",
+    level: "villages",
+    levelLabel: "desa atau kelurahan",
+    placeholder: "Cari desa atau kelurahan…",
+  },
+];
+
 const EMPTY_STATE: LoadState = { status: "idle", regions: [] };
 
 class RegionRequestError extends Error {}
@@ -88,15 +127,45 @@ function selectedName(regions: Region[], code: string | undefined) {
   return regions.find((region) => region.code === code)?.name;
 }
 
+function stepIndexForSelection(selection: Selection): number {
+  if (!selection.province) return 0;
+  if (!selection.regency) return 1;
+  if (!selection.district) return 2;
+  return 3;
+}
+
 export function RegionExplorer({ initialSelection }: { initialSelection: InitialSelection }) {
   const [selection, setSelection] = useState<Selection>(initialSelection);
   const [copiedCode, setCopiedCode] = useState<string>();
+  const [copiedName, setCopiedName] = useState<string>();
+  const [mobileStep, setMobileStep] = useState(() => stepIndexForSelection(initialSelection));
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const provinces = useRegions("provinces", undefined, true);
   const regencies = useRegions("regencies", selection.province, Boolean(selection.province));
   const districts = useRegions("districts", selection.regency, Boolean(selection.regency));
   const villages = useRegions("villages", selection.district, Boolean(selection.district));
+
+  const levelData: Record<keyof Selection, LoadState> = {
+    province: provinces,
+    regency: regencies,
+    district: districts,
+    village: villages,
+  };
+
+  const levelRetries: Record<keyof Selection, () => void> = {
+    province: provinces.retry,
+    regency: regencies.retry,
+    district: districts.retry,
+    village: villages.retry,
+  };
+
+  const levelRegions: Record<keyof Selection, Region[]> = {
+    province: provinces.regions,
+    regency: regencies.regions,
+    district: districts.regions,
+    village: villages.regions,
+  };
 
   const names = useMemo(
     () => [
@@ -128,12 +197,58 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
     try {
       await navigator.clipboard.writeText(region.code);
       setCopiedCode(region.code);
+      setCopiedName(region.name);
       if (copyTimer.current) clearTimeout(copyTimer.current);
-      copyTimer.current = setTimeout(() => setCopiedCode(undefined), 1_600);
+      copyTimer.current = setTimeout(() => {
+        setCopiedCode(undefined);
+        setCopiedName(undefined);
+      }, 1_600);
     } catch {
       setCopiedCode(undefined);
+      setCopiedName(undefined);
     }
   }, []);
+
+  function handleSelect(step: Step, region: Region) {
+    setSelection((current) => {
+      const next: Selection = { ...current };
+
+      if (step.key === "province") {
+        next.province = region.code;
+        delete next.regency;
+        delete next.district;
+        delete next.village;
+      } else if (step.key === "regency") {
+        next.regency = region.code;
+        delete next.district;
+        delete next.village;
+      } else if (step.key === "district") {
+        next.district = region.code;
+        delete next.village;
+      } else {
+        next.village = region.code;
+      }
+
+      return next;
+    });
+
+    const nextStepIndex = STEPS.findIndex((s) => s.key === step.key) + 1;
+    if (nextStepIndex < STEPS.length) {
+      setMobileStep(nextStepIndex);
+    }
+  }
+
+  function handleReset() {
+    setSelection({});
+    setMobileStep(0);
+  }
+
+  function stepStatus(stepIndex: number): "complete" | "active" | "pending" {
+    const currentStep = stepIndexForSelection(selection);
+    if (stepIndex < currentStep) return "complete";
+    if (stepIndex === currentStep) return "active";
+    return "pending";
+  }
 
   return (
     <section className="explorer-shell" aria-label="Penjelajah kode wilayah Indonesia">
@@ -145,87 +260,84 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
         <button
           className="reset-button"
           type="button"
-          onClick={() => setSelection({})}
+          onClick={handleReset}
           disabled={!selection.province}
         >
           Atur ulang
         </button>
       </div>
 
+      <div
+        className="copy-feedback"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-visible={Boolean(copiedCode)}
+      >
+        {copiedCode ? `Kode ${copiedCode} — ${copiedName} tersalin` : ""}
+      </div>
+
+      <nav className="mobile-stepper" aria-label="Tahapan penjelajahan">
+        <ol>
+          {STEPS.map((step, index) => {
+            const status = stepStatus(index);
+            const isActive = index === mobileStep;
+            return (
+              <li key={step.key}>
+                <button
+                  type="button"
+                  className={`mobile-step${isActive ? " is-active" : ""}${status === "complete" ? " is-complete" : ""}`}
+                  onClick={() => setMobileStep(index)}
+                  aria-current={isActive ? "step" : undefined}
+                  aria-disabled={status === "pending"}
+                  disabled={status === "pending"}
+                >
+                  <span className="mobile-step-number" aria-hidden="true">
+                    {status === "complete" ? "✓" : index + 1}
+                  </span>
+                  <span className="mobile-step-label">{step.title}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
       <div className="explorer-grid">
-        <RegionColumn
-          title="Provinsi"
-          levelLabel="provinsi"
-          placeholder="Cari provinsi…"
-          hint="Pilih provinsi untuk melihat kabupaten atau kota."
-          status={provinces.status}
-          regions={provinces.regions}
-          selectedCode={selection.province}
-          copiedCode={copiedCode}
-          canSelectChildren
-          error={provinces.error}
-          onRetry={provinces.retry}
-          onCopy={copyRegionCode}
-          onSelect={(region) => setSelection({ province: region.code })}
-        />
-        <RegionColumn
-          key={`regencies-${selection.province ?? "empty"}`}
-          title="Kabupaten / Kota"
-          levelLabel="kabupaten atau kota"
-          placeholder="Cari kabupaten atau kota…"
-          hint={selection.province ? "Pilih kabupaten atau kota." : "Pilih provinsi dahulu."}
-          status={regencies.status}
-          regions={regencies.regions}
-          selectedCode={selection.regency}
-          copiedCode={copiedCode}
-          canSelectChildren
-          error={regencies.error}
-          onRetry={regencies.retry}
-          onCopy={copyRegionCode}
-          onSelect={(region) =>
-            setSelection((current) => ({ province: current.province, regency: region.code }))
-          }
-        />
-        <RegionColumn
-          key={`districts-${selection.regency ?? "empty"}`}
-          title="Kecamatan"
-          levelLabel="kecamatan"
-          placeholder="Cari kecamatan…"
-          hint={selection.regency ? "Pilih kecamatan." : "Pilih kabupaten atau kota dahulu."}
-          status={districts.status}
-          regions={districts.regions}
-          selectedCode={selection.district}
-          copiedCode={copiedCode}
-          canSelectChildren
-          error={districts.error}
-          onRetry={districts.retry}
-          onCopy={copyRegionCode}
-          onSelect={(region) =>
-            setSelection((current) => ({
-              province: current.province,
-              regency: current.regency,
-              district: region.code,
-            }))
-          }
-        />
-        <RegionColumn
-          key={`villages-${selection.district ?? "empty"}`}
-          title="Desa / Kelurahan"
-          levelLabel="desa atau kelurahan"
-          placeholder="Cari desa atau kelurahan…"
-          hint={selection.district ? "Pilih atau salin kode wilayah." : "Pilih kecamatan dahulu."}
-          status={villages.status}
-          regions={villages.regions}
-          selectedCode={selection.village}
-          copiedCode={copiedCode}
-          canSelectChildren={false}
-          error={villages.error}
-          onRetry={villages.retry}
-          onCopy={copyRegionCode}
-          onSelect={(region) =>
-            setSelection((current) => ({ ...current, village: region.code }))
-          }
-        />
+        {STEPS.map((step, index) => {
+          const data = levelData[step.key];
+          const parentKey = STEPS[index - 1]?.key;
+          const parentSelected = parentKey ? Boolean(selection[parentKey]) : true;
+
+          return (
+            <RegionColumn
+              key={`${step.key}-${selection[step.key] ?? "empty"}`}
+              title={step.title}
+              levelLabel={step.levelLabel}
+              placeholder={step.placeholder}
+              hint={
+                !parentSelected
+                  ? `Pilih ${STEPS[index - 1].levelLabel} dahulu.`
+                  : step.key === "province"
+                    ? "Pilih provinsi untuk melihat kabupaten atau kota."
+                    : step.key === "village"
+                      ? "Pilih atau salin kode wilayah."
+                      : `Pilih ${step.levelLabel}.`
+              }
+              status={data.status}
+              regions={levelRegions[step.key]}
+              selectedCode={selection[step.key]}
+              copiedCode={copiedCode}
+              canSelectChildren={index < STEPS.length - 1}
+              error={data.error}
+              onRetry={levelRetries[step.key]}
+              onCopy={copyRegionCode}
+              onSelect={(region) => handleSelect(step, region)}
+              mobileActive={index === mobileStep}
+              mobileStepIndex={index}
+            />
+          );
+        })}
       </div>
     </section>
   );

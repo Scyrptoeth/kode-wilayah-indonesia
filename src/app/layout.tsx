@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -40,7 +41,22 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={`${dmSans.variable} ${dmMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">
+          Lewati ke konten utama
+        </a>
+
+        <div className="site-shell">
+          <SiteHeader />
+          {children}
+          <footer className="site-footer">
+            <div className="page-container footer-inner">
+              <p>Kode Wilayah Indonesia</p>
+              <p>Data dimuat sesuai pilihan untuk menjaga aplikasi tetap cepat.</p>
+            </div>
+          </footer>
+        </div>
+      </body>
     </html>
   );
 }

@@ -8,7 +8,7 @@ import {
   MapPin,
   WarningCircle,
 } from "@phosphor-icons/react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Region } from "@/lib/regions";
 
 export type ColumnStatus = "idle" | "loading" | "success" | "error";
@@ -27,6 +27,8 @@ interface RegionColumnProps {
   onSelect: (region: Region) => void;
   onCopy: (region: Region) => void;
   onRetry: () => void;
+  mobileActive?: boolean;
+  mobileStepIndex?: number;
 }
 
 function SkeletonList() {
@@ -53,11 +55,14 @@ export function RegionColumn({
   onSelect,
   onCopy,
   onRetry,
+  mobileActive,
+  mobileStepIndex,
 }: RegionColumnProps) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase("id-ID"));
-  const controlId = levelLabel.replaceAll(" ", "-");
+  const controlId = levelLabel.replaceAll(" ", "-").replaceAll("/", "-");
   const titleId = `column-${controlId}`;
+  const listRef = useRef<HTMLUListElement>(null);
 
   const filteredRegions = useMemo(() => {
     if (!deferredQuery) return regions;
@@ -68,14 +73,23 @@ export function RegionColumn({
     );
   }, [deferredQuery, regions]);
 
+  useEffect(() => {
+    if (!mobileActive || mobileStepIndex === undefined) return;
+    const activeButton = listRef.current?.querySelector<HTMLElement>(".region-select[aria-current='true']");
+    activeButton?.scrollIntoView({ block: "nearest" });
+  }, [mobileActive, mobileStepIndex, regions, selectedCode]);
+
   return (
-    <section className="region-column" aria-labelledby={titleId}>
+    <section
+      className={`region-column${mobileActive ? " is-mobile-active" : ""}${mobileActive === false ? " is-mobile-hidden" : ""}`}
+      aria-labelledby={titleId}
+    >
       <div className="column-header">
         <div className="column-title-row">
           <h2 id={titleId}>{title}</h2>
           {status === "success" ? (
             <span className="column-count" aria-label={`${regions.length} ${levelLabel}`}>
-              {regions.length}
+              {regions.length.toLocaleString("id-ID")}
             </span>
           ) : null}
         </div>
@@ -94,9 +108,12 @@ export function RegionColumn({
             placeholder={placeholder}
             disabled={status !== "success"}
             autoComplete="off"
+            aria-describedby={status !== "success" ? `hint-${controlId}` : undefined}
           />
         </div>
-        <p className="column-hint">{hint}</p>
+        <p className="column-hint" id={`hint-${controlId}`}>
+          {hint}
+        </p>
       </div>
 
       {status === "loading" ? <SkeletonList /> : null}
@@ -104,7 +121,7 @@ export function RegionColumn({
       {status === "idle" ? (
         <div className="column-state">
           <MapPin size={34} weight="duotone" aria-hidden="true" />
-          <p>Pilih item di kolom sebelumnya.</p>
+          <p>{hint}</p>
         </div>
       ) : null}
 
@@ -126,7 +143,7 @@ export function RegionColumn({
       ) : null}
 
       {status === "success" && filteredRegions.length > 0 ? (
-        <ul className="region-list">
+        <ul className="region-list" ref={listRef}>
           {filteredRegions.map((region) => {
             const isSelected = selectedCode === region.code;
             const isCopied = copiedCode === region.code;
