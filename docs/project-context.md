@@ -22,10 +22,11 @@ The primary audience is anyone completing address data, checking administrative 
 ## Architecture
 
 - Next.js 16 App Router and React 19.
-- Static public page with URL-driven initial selection.
+- Static public pages (`/`, `/dokumentasi`, `/faq`) with URL-driven initial selection on the home page.
 - Small Client Component island for hierarchy state, local search, copy feedback, and progressive requests.
 - Route Handler adapter at `/api/regions` for upstream validation, normalization, caching, and error isolation.
 - Region codes remain strings in the internal contract.
+- Shared `SiteHeader` Client Component provides main navigation and active-page indication.
 
 ## Product character
 

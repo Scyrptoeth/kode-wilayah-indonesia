@@ -29,3 +29,10 @@ Reusable lessons are added only after a verified implementation or release resul
 - **Why partial verification is insufficient:** A build can fail on dynamic imports or environment-specific paths even when tests pass; lint can catch accessibility or import issues that typechecking misses.
 - **Reusable rule:** Run `typecheck`, `lint`, `test`, and `build` in sequence before pushing or deploying.
 - **Evidence:** All four commands pass for commit `4001762c1ba41420dd3cef3b1babda1b02c61ac4`, and the Vercel deployment built successfully from the same tree.
+
+## 5. Hierarchical selection needs a dedicated mobile wizard
+
+- **Observed condition:** On narrow viewports, stacking four short columns forced users to scroll repeatedly and made it hard to track which level they were selecting.
+- **Why the prior responsive layout was insufficient:** A simple 1-column stack preserves legibility but hides the sequential relationship between levels and offers no quick way to backtrack.
+- **Reusable rule:** For multi-level hierarchy pickers on mobile, show one active level at a time with a persistent stepper ( Provinsi → Kab/Kota → Kecamatan → Desa ), auto-advance on selection, and allow returning to completed steps.
+- **Evidence:** `RegionExplorer` now uses a `STEPS` array and a `mobileStepper`; only the active column renders below 720 px, and the production deployment renders the stepper correctly at `https://kode-wilayah-indonesia-ecru.vercel.app`.

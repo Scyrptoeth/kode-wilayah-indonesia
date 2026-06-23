@@ -1,6 +1,6 @@
 # Next Actions
 
-The active list is updated after the initial implementation and production verification.
+The active list is updated after the UI/UX audit and production deployment.
 Completed actions are removed; only implementable work remains.
 
 ## P1 — Global search across all administrative levels
@@ -25,17 +25,6 @@ Completed actions are removed; only implementable work remains.
   - Export works from any selected level, leaving empty fields blank rather than failing.
 - **Risk if deferred:** Users must manually transcribe codes, increasing error rates.
 
-## P1 — Mobile step-by-step wizard
-
-- **Outcome:** On viewports narrower than 720 px, the four-column explorer collapses into a single-column wizard with clear back/next navigation.
-- **Why now:** The current responsive layout stacks four short columns, which is hard to scan and navigate on phones.
-- **Prerequisite:** Existing `RegionExplorer` state logic can be reused; only presentation changes.
-- **Acceptance criteria:**
-  - Only one active level is visible at a time on mobile.
-  - A back button returns to the previous level and clears downstream selections.
-  - Selected values are summarized at the top.
-- **Risk if deferred:** Mobile completion rate for deep lookups stays low.
-
 ## P2 — Automated data refresh workflow
 
 - **Outcome:** A repeatable script (and optional GitHub Action) that downloads the latest `cahyadsn/wilayah` SQL dump, regenerates `public/data/`, runs verification, and opens a PR.
@@ -57,3 +46,14 @@ Completed actions are removed; only implementable work remains.
   - Open Graph image and tags render correctly in social-card validators.
   - No third-party analytics script blocks the main thread.
 - **Risk if deferred:** Organic traffic and shareability remain limited.
+
+## P2 — Virtualization for long village lists
+
+- **Outcome:** Render only visible village rows in districts with hundreds or thousands of villages.
+- **Why now:** Some districts contain many villages; rendering all rows can cause jank on low-end devices even with `content-visibility`.
+- **Prerequisite:** Evaluate whether to add `@tanstack/react-virtual` or implement a lightweight custom window.
+- **Acceptance criteria:**
+  - Lists with 1.000+ items scroll at 60 fps on mid-range mobile.
+  - Search filtering still works instantly.
+  - No new dependency is added unless a concrete need is proven.
+- **Risk if deferred:** Mobile users in high-density districts experience sluggish scrolling.

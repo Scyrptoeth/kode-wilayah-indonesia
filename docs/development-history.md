@@ -2,6 +2,34 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Full UI/UX audit, navigation, and mobile wizard
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `9ae416fe5570a28b15676663b522bfd1b2eb2e47`.
+- Re-ran verification stack:
+  - `npm test` — 7/7 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed.
+- Source changes:
+  - Added `src/components/site-header.tsx` with main navigation (Wilayah, Dokumentasi, FAQ).
+  - Moved site shell, skip-link, header, and footer into `src/app/layout.tsx` for consistent layout.
+  - Created `src/app/dokumentasi/page.tsx` and `src/app/faq/page.tsx`.
+  - Rebuilt `src/components/region-explorer.tsx` with step-driven state, mobile stepper wizard, and copy-to-clipboard live feedback.
+  - Improved `src/components/region-column.tsx` accessibility: `aria-describedby` on disabled search, selected-item scroll-into-view on mobile, formatted counts.
+  - Updated `src/app/page.tsx` copy and synced counts with `docs/data-contract.md` (7.265 districts, 83.345 villages).
+  - Extended `src/app/globals.css` for navigation, mobile stepper, copy feedback, and content pages.
+- Verified live deployment at `https://kode-wilayah-indonesia-ecru.vercel.app` on 2026-06-23T10:00:43Z:
+  - Home (`/`): HTTP 200.
+  - `/dokumentasi`: HTTP 200.
+  - `/faq`: HTTP 200.
+  - `/api/regions?level=provinces`: HTTP 200.
+  - `/api/regions?level=regencies&parent=11`: HTTP 200.
+  - `/api/regions?level=districts&parent=1101`: HTTP 200.
+  - `/api/regions?level=villages&parent=110101`: HTTP 200.
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-ecru.vercel.app (aliased from https://kode-wilayah-indonesia-iui4t8e07-scyrptoeths-projects.vercel.app).
+
 ## 2026-06-23 — Initial complete implementation
 
 - Created local dataset from Kepmendagri No 300.2.2-2138 Tahun 2025 via `cahyadsn/wilayah`.
