@@ -20,7 +20,7 @@ npm run build
 
 ## Data
 
-Dataset berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola oleh
-[cahyadsn/wilayah](https://github.com/cahyadsn/wilayah). Data disajikan sebagai file JSON
-statis di `public/data/` dan disajikan melalui route handler `/api/regions`.
+Dataset berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola secara mandiri di
+[Scyrptoeth/wilayah-indonesia-data](https://github.com/Scyrptoeth/wilayah-indonesia-data).
+Data disajikan sebagai file JSON statis di `public/data/` dan disajikan melalui route handler `/api/regions`.
 Lihat `docs/data-contract.md` untuk kontrak, cache policy, provenance, dan keterbatasannya.

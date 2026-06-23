@@ -24,7 +24,7 @@ export async function GET(request: Request) {
             count: data.length,
             level: "search",
             query: query.trim(),
-            source: "Kepmendagri No 300.2.2-2138 Tahun 2025 via cahyadsn/wilayah",
+            source: "Kepmendagri No 300.2.2-2138 Tahun 2025 via Scyrptoeth/wilayah-indonesia-data",
           },
         },
         {
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
           count: data.length,
           level,
           parent,
-          source: "Kepmendagri No 300.2.2-2138 Tahun 2025 via cahyadsn/wilayah",
+          source: "Kepmendagri No 300.2.2-2138 Tahun 2025 via Scyrptoeth/wilayah-indonesia-data",
         },
       },
       {

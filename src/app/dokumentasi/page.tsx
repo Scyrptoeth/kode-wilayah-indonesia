@@ -33,16 +33,16 @@ export default function DocumentationPage() {
           <h2 id="data-source-heading">Sumber data</h2>
           <p>
             Dataset berasal dari{" "}
-            <strong>Kepmendagri No 300.2.2-2138 Tahun 2025</strong> yang dikelola oleh{" "}
+            <strong>Kepmendagri No 300.2.2-2138 Tahun 2025</strong> yang diterbitkan oleh
+            Kementerian Dalam Negeri (Kemendagri) dan dikelola secara mandiri di{" "}
             <a
-              href="https://github.com/cahyadsn/wilayah"
+              href="https://github.com/Scyrptoeth/wilayah-indonesia-data"
               rel="noopener noreferrer"
               target="_blank"
             >
-              cahyadsn/wilayah
-            </a>{" "}
-            di GitHub. Data tersebut merujuk pada kode wilayah administratif Indonesia yang
-            diterbitkan oleh Kementerian Dalam Negeri (Kemendagri).
+              Scyrptoeth/wilayah-indonesia-data
+            </a>
+            .
           </p>
         </section>
 

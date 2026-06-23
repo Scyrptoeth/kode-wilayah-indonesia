@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CaretLeft,
   CaretRight,
   Check,
   CopySimple,
@@ -30,6 +31,8 @@ interface RegionColumnProps {
   onRetry: () => void;
   mobileActive?: boolean;
   mobileStepIndex?: number;
+  showBack?: boolean;
+  onBack?: () => void;
   virtualizeThreshold?: number;
   virtualize?: boolean;
 }
@@ -60,6 +63,8 @@ export function RegionColumn({
   onRetry,
   mobileActive,
   mobileStepIndex,
+  showBack,
+  onBack,
   virtualizeThreshold = 100,
   virtualize = false,
 }: RegionColumnProps) {
@@ -136,6 +141,17 @@ export function RegionColumn({
       aria-labelledby={titleId}
     >
       <div className="column-header">
+        {showBack ? (
+          <button
+            type="button"
+            className="mobile-back-button"
+            onClick={onBack}
+            aria-label="Kembali ke langkah sebelumnya"
+          >
+            <CaretLeft size={16} weight="bold" aria-hidden="true" />
+            Kembali
+          </button>
+        ) : null}
         <div className="column-title-row">
           <h2 id={titleId}>{title}</h2>
           {status === "success" ? (
@@ -167,48 +183,50 @@ export function RegionColumn({
         </p>
       </div>
 
-      {status === "loading" ? <SkeletonList /> : null}
+      <div className="column-body">
+        {status === "loading" ? <SkeletonList /> : null}
 
-      {status === "idle" ? (
-        <div className="column-state">
-          <MapPin size={34} weight="duotone" aria-hidden="true" />
-          <p>{hint}</p>
-        </div>
-      ) : null}
+        {status === "idle" ? (
+          <div className="column-state">
+            <MapPin size={34} weight="duotone" aria-hidden="true" />
+            <p>{hint}</p>
+          </div>
+        ) : null}
 
-      {status === "error" ? (
-        <div className="column-state is-error" role="alert">
-          <WarningCircle size={34} weight="duotone" aria-hidden="true" />
-          <p>{error}</p>
-          <button className="retry-button" type="button" onClick={onRetry}>
-            Coba lagi
-          </button>
-        </div>
-      ) : null}
+        {status === "error" ? (
+          <div className="column-state is-error" role="alert">
+            <WarningCircle size={34} weight="duotone" aria-hidden="true" />
+            <p>{error}</p>
+            <button className="retry-button" type="button" onClick={onRetry}>
+              Coba lagi
+            </button>
+          </div>
+        ) : null}
 
-      {status === "success" && filteredRegions.length === 0 ? (
-        <div className="column-state">
-          <MagnifyingGlass size={34} aria-hidden="true" />
-          <p>Tidak ada hasil untuk pencarian ini.</p>
-        </div>
-      ) : null}
+        {status === "success" && filteredRegions.length === 0 ? (
+          <div className="column-state">
+            <MagnifyingGlass size={34} aria-hidden="true" />
+            <p>Tidak ada hasil untuk pencarian ini.</p>
+          </div>
+        ) : null}
 
-      {status === "success" && filteredRegions.length > 0 ? (
-        shouldVirtualize ? (
-          <VirtualList
-            items={filteredRegions}
-            itemHeight={58}
-            overscan={8}
-            selectedIndex={selectedIndex >= 0 ? selectedIndex : undefined}
-            getItemKey={(region) => region.code}
-            renderItem={(region) => renderRegionRow(region)}
-          />
-        ) : (
-          <ul className="region-list" ref={listRef}>
-            {filteredRegions.map((region) => renderRegionRow(region))}
-          </ul>
-        )
-      ) : null}
+        {status === "success" && filteredRegions.length > 0 ? (
+          shouldVirtualize ? (
+            <VirtualList
+              items={filteredRegions}
+              itemHeight={58}
+              overscan={8}
+              selectedIndex={selectedIndex >= 0 ? selectedIndex : undefined}
+              getItemKey={(region) => region.code}
+              renderItem={(region) => renderRegionRow(region)}
+            />
+          ) : (
+            <ul className="region-list" ref={listRef}>
+              {filteredRegions.map((region) => renderRegionRow(region))}
+            </ul>
+          )
+        ) : null}
+      </div>
     </section>
   );
 }

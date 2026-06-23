@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Moon, Sun } from "@phosphor-icons/react";
+import { useTheme } from "@/components/theme-provider";
 
 const navItems = [
   { href: "/", label: "Wilayah" },
@@ -11,6 +13,7 @@ const navItems = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="site-header">
@@ -37,6 +40,16 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Beralih ke mode terang" : "Beralih ke mode gelap"}
+          title={theme === "dark" ? "Beralih ke mode terang" : "Beralih ke mode gelap"}
+        >
+          {theme === "dark" ? <Sun size={20} weight="bold" /> : <Moon size={20} weight="bold" />}
+        </button>
       </div>
     </header>
   );

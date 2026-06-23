@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { fetchRegions, isRegionLevel, RegionDataError, validateRegionRequest } from "./regions";
+import {
+  fetchRegions,
+  hierarchyToCsv,
+  hierarchyToJson,
+  isRegionLevel,
+  RegionDataError,
+  validateRegionRequest,
+} from "./regions";
 
 describe("region data adapter", () => {
   it("loads all 38 provinces", async () => {
@@ -41,5 +48,26 @@ describe("region data adapter", () => {
 
   it("throws on missing village parent", async () => {
     await expect(fetchRegions("villages", null)).rejects.toBeInstanceOf(RegionDataError);
+  });
+
+  it("formats hierarchy as JSON", () => {
+    const path = {
+      province: { code: "11", name: "Aceh" },
+      regency: { code: "1101", name: "Kabupaten Simeulue" },
+    };
+    const json = hierarchyToJson(path);
+    expect(json).toContain("Aceh");
+    expect(JSON.parse(json)).toEqual(path);
+  });
+
+  it("formats hierarchy as CSV", () => {
+    const path = {
+      province: { code: "11", name: "Aceh" },
+      regency: { code: "1101", name: "Kabupaten Simeulue" },
+    };
+    const csv = hierarchyToCsv(path);
+    expect(csv).toContain("level,code,name");
+    expect(csv).toContain('province,11,"Aceh"');
+    expect(csv).toContain('regency,1101,"Kabupaten Simeulue"');
   });
 });

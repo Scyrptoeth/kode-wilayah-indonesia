@@ -52,20 +52,29 @@ export async function generateMetadata({
     ? `Lihat kode wilayah ${path.join(" › ")} dari data Kepmendagri 2025. Telusuri provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan di seluruh Indonesia.`
     : "Telusuri kode provinsi, kabupaten atau kota, kecamatan, dan desa atau kelurahan di seluruh Indonesia berdasarkan Kepmendagri 2025.";
 
+  const selectionParams = new URLSearchParams();
+  if (provinceCode) selectionParams.set("province", provinceCode);
+  if (regencyCode) selectionParams.set("regency", regencyCode);
+  if (districtCode) selectionParams.set("district", districtCode);
+  if (villageCode) selectionParams.set("village", villageCode);
+  const selectionPath = selectionParams.toString()
+    ? `/?${selectionParams.toString()}`
+    : "/";
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: "/",
+      url: selectionPath,
     },
     twitter: {
       title,
       description,
     },
     alternates: {
-      canonical: "/",
+      canonical: selectionPath,
     },
   };
 }
@@ -115,9 +124,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       <aside className="data-note" aria-label="Catatan sumber data">
         <strong>Sumber data</strong>
         <p>
-          Dataset berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola oleh
-          cahyadsn/wilayah. Kode wilayah disajikan sebagai referensi; verifikasi kembali dengan
-          sumber pemerintah resmi untuk penggunaan kritis.
+          Dataset berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola secara mandiri
+          di Scyrptoeth/wilayah-indonesia-data. Kode wilayah disajikan sebagai referensi;
+          verifikasi kembali dengan sumber pemerintah resmi untuk penggunaan kritis.
         </p>
       </aside>
     </main>

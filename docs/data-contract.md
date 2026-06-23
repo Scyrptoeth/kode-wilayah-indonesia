@@ -2,10 +2,10 @@
 
 ## Source
 
-Dataset berasal dari **Kepmendagri No 300.2.2-2138 Tahun 2025** yang dikelola oleh
-[cahyadsn/wilayah](https://github.com/cahyadsn/wilayah) di GitHub.
-Data tersebut merujuk pada kode wilayah administratif Indonesia yang diterbitkan oleh
-Kementerian Dalam Negeri (Kemendagri).
+Dataset berasal dari **Kepmendagri No 300.2.2-2138 Tahun 2025** yang diterbitkan oleh
+Kementerian Dalam Negeri Republik Indonesia dan dikelola secara mandiri di
+[Scyrptoeth/wilayah-indonesia-data](https://github.com/Scyrptoeth/wilayah-indonesia-data).
+Repo ini berfungsi sebagai source-of-truth untuk aplikasi Kode-Wilayah-Indonesia.
 
 ## Local files
 
@@ -36,7 +36,7 @@ File JSON statis disimpan di `public/data/`:
     "count": 38,
     "level": "provinces",
     "parent": null,
-    "source": "Kepmendagri No 300.2.2-2138 Tahun 2025 via cahyadsn/wilayah"
+    "source": "Kepmendagri No 300.2.2-2138 Tahun 2025 via Scyrptoeth/wilayah-indonesia-data"
   }
 }
 ```

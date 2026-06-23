@@ -14,12 +14,13 @@ const DATA_DIR = path.join(process.cwd(), "public", "data");
 const VILLAGES_DIR = path.join(DATA_DIR, "villages");
 const MIN_QUERY_LENGTH = 3;
 const DEFAULT_LIMIT = 20;
+const FUZZY_THRESHOLD = 42;
 
 function normalize(text: string): string {
   return text.toLocaleLowerCase("id-ID");
 }
 
-function score(query: string, name: string, code: string): number {
+function exactScore(query: string, name: string, code: string): number {
   const q = normalize(query);
   const n = normalize(name);
 
@@ -30,6 +31,66 @@ function score(query: string, name: string, code: string): number {
   if (n.includes(` ${q}`) || n.includes(`-${q}`)) return 60;
   if (n.includes(q)) return 50;
   return 0;
+}
+
+function tokens(text: string): string[] {
+  return normalize(text)
+    .split(/[\s\-/,().]+/)
+    .filter((token) => token.length > 0);
+}
+
+function tokenScore(query: string, name: string): number {
+  const queryTokens = tokens(query);
+  const nameTokens = tokens(name);
+  if (queryTokens.length === 0 || nameTokens.length === 0) return 0;
+
+  let matched = 0;
+  for (const qToken of queryTokens) {
+    const match = nameTokens.some((nToken) =>
+      qToken.length <= 2 ? nToken === qToken : nToken.startsWith(qToken),
+    );
+    if (match) matched++;
+  }
+
+  const coverage = matched / queryTokens.length;
+  const density = matched / nameTokens.length;
+  return Math.round((coverage * 0.7 + density * 0.3) * 70);
+}
+
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = Array.from({ length: b.length + 1 }, (_, row) => [row]);
+  for (let col = 1; col <= a.length; col++) {
+    matrix[0][col] = col;
+  }
+
+  for (let row = 1; row <= b.length; row++) {
+    for (let col = 1; col <= a.length; col++) {
+      const cost = a[col - 1] === b[row - 1] ? 0 : 1;
+      matrix[row][col] = Math.min(
+        matrix[row - 1][col] + 1,
+        matrix[row][col - 1] + 1,
+        matrix[row - 1][col - 1] + cost,
+      );
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+function levenshteinScore(query: string, name: string): number {
+  const q = normalize(query);
+  const n = normalize(name);
+  const distance = levenshteinDistance(q, n);
+  const maxLength = Math.max(q.length, n.length);
+  if (maxLength === 0) return 100;
+  const similarity = 1 - distance / maxLength;
+  return Math.round(similarity * 60);
+}
+
+function fuzzyScore(query: string, name: string): number {
+  const token = tokenScore(query, name);
+  const levenshtein = levenshteinScore(query, name);
+  return Math.max(token, levenshtein);
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -47,19 +108,19 @@ function pathForLevel(
   if (level === "provinces") return [];
 
   const provinceCode = code.slice(0, 2);
-  const path = [{ code: provinceCode, name: provinceMap.get(provinceCode) ?? "" }];
+  const result = [{ code: provinceCode, name: provinceMap.get(provinceCode) ?? "" }];
 
-  if (level === "regencies") return path;
+  if (level === "regencies") return result;
 
   const regencyCode = code.slice(0, 4);
-  path.push({ code: regencyCode, name: regencyMap.get(regencyCode) ?? "" });
+  result.push({ code: regencyCode, name: regencyMap.get(regencyCode) ?? "" });
 
-  if (level === "districts") return path;
+  if (level === "districts") return result;
 
   const districtCode = code.slice(0, 6);
-  path.push({ code: districtCode, name: districtMap.get(districtCode) ?? "" });
+  result.push({ code: districtCode, name: districtMap.get(districtCode) ?? "" });
 
-  return path;
+  return result;
 }
 
 function collectMatches(
@@ -69,10 +130,11 @@ function collectMatches(
   provinceMap: Map<string, string>,
   regencyMap: Map<string, string>,
   districtMap: Map<string, string>,
+  enableFuzzy: boolean,
 ): SearchResult[] {
   const results: SearchResult[] = [];
   for (const region of regions) {
-    const s = score(query, region.name, region.code);
+    const s = exactScore(query, region.name, region.code);
     if (s > 0) {
       results.push({
         code: region.code,
@@ -81,6 +143,20 @@ function collectMatches(
         path: pathForLevel(level, region.code, provinceMap, regencyMap, districtMap),
         score: s,
       });
+      continue;
+    }
+
+    if (enableFuzzy) {
+      const fuzzy = fuzzyScore(query, region.name);
+      if (fuzzy >= FUZZY_THRESHOLD) {
+        results.push({
+          code: region.code,
+          name: region.name,
+          level,
+          path: pathForLevel(level, region.code, provinceMap, regencyMap, districtMap),
+          score: fuzzy,
+        });
+      }
     }
   }
   return results;
@@ -91,6 +167,7 @@ async function searchVillages(
   provinceMap: Map<string, string>,
   regencyMap: Map<string, string>,
   districtMap: Map<string, string>,
+  enableFuzzy: boolean,
 ): Promise<SearchResult[]> {
   const files = (await readdir(VILLAGES_DIR)).filter((file) => file.endsWith(".json"));
   const results: SearchResult[] = [];
@@ -109,6 +186,7 @@ async function searchVillages(
           provinceMap,
           regencyMap,
           districtMap,
+          enableFuzzy,
         ).map((result) => ({
           ...result,
           path: [
@@ -143,14 +221,34 @@ export async function searchRegions(query: string, limit = DEFAULT_LIMIT): Promi
   const regencyMap = new Map(regencies.map((r) => [r.code, r.name]));
   const districtMap = new Map(districts.map((r) => [r.code, r.name]));
 
-  const results: SearchResult[] = [
-    ...collectMatches(provinces, "provinces", normalized, provinceMap, regencyMap, districtMap),
-    ...collectMatches(regencies, "regencies", normalized, provinceMap, regencyMap, districtMap),
-    ...collectMatches(districts, "districts", normalized, provinceMap, regencyMap, districtMap),
-    ...(await searchVillages(normalized, provinceMap, regencyMap, districtMap)),
+  const exactResults: SearchResult[] = [
+    ...collectMatches(provinces, "provinces", normalized, provinceMap, regencyMap, districtMap, false),
+    ...collectMatches(regencies, "regencies", normalized, provinceMap, regencyMap, districtMap, false),
+    ...collectMatches(districts, "districts", normalized, provinceMap, regencyMap, districtMap, false),
+    ...(await searchVillages(normalized, provinceMap, regencyMap, districtMap, false)),
   ];
 
-  results.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "id-ID"));
+  const fuzzyResults: SearchResult[] = [];
+  if (exactResults.length < limit) {
+    fuzzyResults.push(
+      ...collectMatches(provinces, "provinces", normalized, provinceMap, regencyMap, districtMap, true),
+      ...collectMatches(regencies, "regencies", normalized, provinceMap, regencyMap, districtMap, true),
+      ...collectMatches(districts, "districts", normalized, provinceMap, regencyMap, districtMap, true),
+      ...(await searchVillages(normalized, provinceMap, regencyMap, districtMap, true)),
+    );
+  }
 
-  return results.slice(0, limit);
+  const seen = new Set<string>();
+  const results: SearchResult[] = [];
+  for (const result of [...exactResults, ...fuzzyResults].sort(
+    (a, b) => b.score - a.score || a.name.localeCompare(b.name, "id-ID"),
+  )) {
+    const key = `${result.level}:${result.code}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push(result);
+    if (results.length >= limit) break;
+  }
+
+  return results;
 }

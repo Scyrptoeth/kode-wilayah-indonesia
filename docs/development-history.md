@@ -2,6 +2,24 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Independent data repository, theme modes, deep-link sharing, mobile UX polish, and fuzzy search
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- Created independent data repository structure at `/Users/persiapantubel/Desktop/codex/wilayah-indonesia-data` with copied JSON files, `README.md`, and `data-contract.md`.
+- Replaced all `cahyadsn/wilayah` references with `Scyrptoeth/wilayah-indonesia-data` in application code, documentation, and skill files.
+- Added `scripts/sync-data.mjs` and `npm run sync:data` / `prebuild` for build-time data sync with local-path and GitHub support and a fallback to existing data.
+- Implemented light/dark mode with system-preference default and manual toggle in `src/components/theme-provider.tsx`, `src/components/theme-script.tsx`, and `src/components/site-header.tsx`.
+- Improved deep-link sharing: `generateMetadata` now emits canonical and Open Graph URLs reflecting the current selection, and `RegionExplorer` exposes a "Bagikan" button using Web Share API with clipboard fallback.
+- Polished mobile wizard: added sticky column header behavior, compact step summaries in the mobile stepper, and an explicit "Kembali" button on active steps.
+- Enhanced global search with token-based and Levenshtein fuzzy matching, plus `src/lib/search.test.ts`.
+- Re-ran verification stack:
+  - `npm test` — 12/12 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed (sync script fell back to existing data because the GitHub data repository is not yet public).
+- Updated docs: `docs/data-contract.md`, `docs/next-actions.md`, `README.md`, `src/app/dokumentasi/page.tsx`, `src/app/faq/page.tsx`.
+- `git status --short` shows uncommitted changes at working tree based on `e48e7ee3ad2186e5b4405f5c151b75c927e417c7`.
+
 ## 2026-06-23 — Global search, SEO metadata, and village-list virtualization
 
 - Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
@@ -72,7 +90,7 @@ Verified development entries are appended by the `update-kode-wilayah-indonesia`
 
 ## 2026-06-23 — Initial complete implementation
 
-- Created local dataset from Kepmendagri No 300.2.2-2138 Tahun 2025 via `cahyadsn/wilayah`.
+- Created local dataset from Kepmendagri No 300.2.2-2138 Tahun 2025 and established independent data repository `Scyrptoeth/wilayah-indonesia-data`.
 - Generated JSON files in `public/data/`:
   - `provinces.json` — 38 provinces
   - `regencies.json` — 514 regencies/cities

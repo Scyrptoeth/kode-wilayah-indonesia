@@ -1,10 +1,12 @@
 "use client";
 
-import { MapTrifold } from "@phosphor-icons/react";
+import { MapTrifold, ShareNetwork } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ExportHierarchy } from "@/components/export-hierarchy";
 import { GlobalSearch, type GlobalSearchSelection } from "@/components/global-search";
 import { RegionColumn, type ColumnStatus } from "@/components/region-column";
 import type {
+  HierarchyPath,
   InitialSelection,
   Region,
   RegionLevel,
@@ -139,8 +141,10 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
   const [selection, setSelection] = useState<Selection>(initialSelection);
   const [copiedCode, setCopiedCode] = useState<string>();
   const [copiedName, setCopiedName] = useState<string>();
+  const [sharedUrl, setSharedUrl] = useState(false);
   const [mobileStep, setMobileStep] = useState(() => stepIndexForSelection(initialSelection));
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const provinces = useRegions("provinces", undefined, true);
   const regencies = useRegions("regencies", selection.province, Boolean(selection.province));
@@ -178,6 +182,16 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
     [districts.regions, provinces.regions, regencies.regions, selection, villages.regions],
   );
 
+  const hierarchyPath: HierarchyPath = useMemo(
+    () => ({
+      province: provinces.regions.find((r) => r.code === selection.province),
+      regency: regencies.regions.find((r) => r.code === selection.regency),
+      district: districts.regions.find((r) => r.code === selection.district),
+      village: villages.regions.find((r) => r.code === selection.village),
+    }),
+    [districts.regions, provinces.regions, regencies.regions, selection, villages.regions],
+  );
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (selection.province) params.set("province", selection.province);
@@ -191,6 +205,7 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
   useEffect(() => {
     return () => {
       if (copyTimer.current) clearTimeout(copyTimer.current);
+      if (shareTimer.current) clearTimeout(shareTimer.current);
     };
   }, []);
 
@@ -207,6 +222,26 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
     } catch {
       setCopiedCode(undefined);
       setCopiedName(undefined);
+    }
+  }, []);
+
+  const handleShare = useCallback(async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: document.title,
+          text: "Lihat kode wilayah ini di Kode Wilayah Indonesia.",
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setSharedUrl(true);
+        if (shareTimer.current) clearTimeout(shareTimer.current);
+        shareTimer.current = setTimeout(() => setSharedUrl(false), 1_600);
+      }
+    } catch {
+      // User cancelled share or clipboard failed; ignore.
     }
   }, []);
 
@@ -265,14 +300,28 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
           <MapTrifold size={20} weight="duotone" aria-hidden="true" />
           <strong>{names.length > 0 ? names.join(" / ") : "Pilih provinsi untuk mulai"}</strong>
         </div>
-        <button
-          className="reset-button"
-          type="button"
-          onClick={handleReset}
-          disabled={!selection.province}
-        >
-          Atur ulang
-        </button>
+        <div className="toolbar-actions">
+          <ExportHierarchy path={hierarchyPath} disabled={!selection.province} />
+          <button
+            className="share-button"
+            type="button"
+            onClick={handleShare}
+            disabled={!selection.province}
+            aria-label="Bagikan tautan wilayah"
+            title="Bagikan tautan"
+          >
+            <ShareNetwork size={18} weight="bold" aria-hidden="true" />
+            <span>Bagikan</span>
+          </button>
+          <button
+            className="reset-button"
+            type="button"
+            onClick={handleReset}
+            disabled={!selection.province}
+          >
+            Atur ulang
+          </button>
+        </div>
       </div>
 
       <div
@@ -280,9 +329,13 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        data-visible={Boolean(copiedCode)}
+        data-visible={Boolean(copiedCode) || sharedUrl}
       >
-        {copiedCode ? `Kode ${copiedCode} — ${copiedName} tersalin` : ""}
+        {copiedCode
+          ? `Kode ${copiedCode} — ${copiedName} tersalin`
+          : sharedUrl
+            ? "Tautan berhasil disalin"
+            : ""}
       </div>
 
       <nav className="mobile-stepper" aria-label="Tahapan penjelajahan">
@@ -290,6 +343,7 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
           {STEPS.map((step, index) => {
             const status = stepStatus(index);
             const isActive = index === mobileStep;
+            const summary = levelRegions[step.key].find((r) => r.code === selection[step.key])?.name;
             return (
               <li key={step.key}>
                 <button
@@ -299,11 +353,14 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
                   aria-current={isActive ? "step" : undefined}
                   aria-disabled={status === "pending"}
                   disabled={status === "pending"}
+                  aria-label={summary ? `${step.title}: ${summary}` : step.title}
                 >
                   <span className="mobile-step-number" aria-hidden="true">
                     {status === "complete" ? "✓" : index + 1}
                   </span>
-                  <span className="mobile-step-label">{step.title}</span>
+                  <span className="mobile-step-label">
+                    {status === "complete" && summary ? summary : step.title}
+                  </span>
                 </button>
               </li>
             );
@@ -343,6 +400,8 @@ export function RegionExplorer({ initialSelection }: { initialSelection: Initial
               onSelect={(region) => handleSelect(step, region)}
               mobileActive={index === mobileStep}
               mobileStepIndex={index}
+              showBack={index === mobileStep && index > 0}
+              onBack={() => setMobileStep((current) => Math.max(0, current - 1))}
               virtualize={step.key === "village"}
             />
           );

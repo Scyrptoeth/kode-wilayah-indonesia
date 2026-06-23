@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "npm run sync:data",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sync:data": "node scripts/sync-data.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

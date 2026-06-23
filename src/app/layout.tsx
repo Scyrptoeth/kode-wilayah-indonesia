@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeScript } from "@/components/theme-script";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -69,37 +71,42 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id" className={`${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="id" className={`${dmSans.variable} ${dmMono.variable}`} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body>
-        <a className="skip-link" href="#main-content">
-          Lewati ke konten utama
-        </a>
+        <ThemeProvider>
+          <a className="skip-link" href="#main-content">
+            Lewati ke konten utama
+          </a>
 
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Kode Wilayah Indonesia",
-              url: "https://kode-wilayah-indonesia-ecru.vercel.app",
-              description:
-                "Telusuri kode provinsi, kabupaten atau kota, kecamatan, dan desa atau kelurahan di seluruh Indonesia.",
-              inLanguage: "id",
-            }),
-          }}
-        />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "Kode Wilayah Indonesia",
+                url: "https://kode-wilayah-indonesia-ecru.vercel.app",
+                description:
+                  "Telusuri kode provinsi, kabupaten atau kota, kecamatan, dan desa atau kelurahan di seluruh Indonesia.",
+                inLanguage: "id",
+              }),
+            }}
+          />
 
-        <div className="site-shell">
-          <SiteHeader />
-          {children}
-          <footer className="site-footer">
-            <div className="page-container footer-inner">
-              <p>Kode Wilayah Indonesia</p>
-              <p>Data dimuat sesuai pilihan untuk menjaga aplikasi tetap cepat.</p>
-            </div>
-          </footer>
-        </div>
+          <div className="site-shell">
+            <SiteHeader />
+            {children}
+            <footer className="site-footer">
+              <div className="page-container footer-inner">
+                <p>Kode Wilayah Indonesia</p>
+                <p>Data dimuat sesuai pilihan untuk menjaga aplikasi tetap cepat.</p>
+              </div>
+            </footer>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

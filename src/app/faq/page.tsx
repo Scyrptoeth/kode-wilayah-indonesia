@@ -34,7 +34,7 @@ const faqItems: FaqItem[] = [
   {
     question: "Dari mana data ini berasal?",
     answer:
-      "Data berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola oleh repositori cahyadsn/wilayah di GitHub.",
+      "Data berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola secara mandiri di repositori Scyrptoeth/wilayah-indonesia-data di GitHub.",
   },
   {
     question: "Apakah data ini resmi?",
