@@ -50,3 +50,10 @@ Reusable lessons are added only after a verified implementation or release resul
 - **Why the prior responsive layout was insufficient:** A simple 1-column stack preserves legibility but hides the sequential relationship between levels and offers no quick way to backtrack.
 - **Reusable rule:** For multi-level hierarchy pickers on mobile, show one active level at a time with a persistent stepper ( Provinsi → Kab/Kota → Kecamatan → Desa ), auto-advance on selection, and allow returning to completed steps.
 - **Evidence:** `RegionExplorer` now uses a `STEPS` array and a `mobileStepper`; only the active column renders below 720 px, and the production deployment renders the stepper correctly at `https://kode-wilayah-indonesia-ecru.vercel.app`.
+
+## 8. Type assertions on state unions hide real UI states
+
+- **Observed condition:** `GlobalSearch` set status to `"success" as "idle"` because the status union did not include `"success"`.
+- **Why the prior approach was insufficient:** The assertion allowed the success path to compile while the component had no explicit success state, which also prevented rendering an empty-results message.
+- **Reusable rule:** Extend the state union to include every semantic status, and never use type assertions to coerce one state into another.
+- **Evidence:** The status union now includes `"idle" | "loading" | "success" | "error"`; empty results are surfaced explicitly and the component passes lint and typecheck.

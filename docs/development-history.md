@@ -2,6 +2,30 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Polish search, mobile wizard, export accessibility, and virtual list
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `bed26a3`.
+- Re-ran verification stack:
+  - `npm test` — 14/14 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed with successful GitHub data sync.
+- Source changes:
+  - Fixed `GlobalSearch` status union to include `"success"` and added empty-results feedback.
+  - Added query highlight (`<mark class="search-highlight">`) to matched text in global search results.
+  - Added `Escape`-to-close and click-outside behavior to `ExportHierarchy` dropdown; focus returns to the export button when closed.
+  - Added smooth scroll-to-step behavior in `RegionColumn` when a step becomes active on mobile.
+  - Added `aria-label` prop to `VirtualList` and passed descriptive labels from `RegionColumn`.
+- Verified live deployment at `https://kode-wilayah-indonesia-ecru.vercel.app` on 2026-06-23T16:54:09Z:
+  - Home (`/`): HTTP 200.
+  - `/api/regions?level=provinces`: HTTP 200, 38 provinces.
+  - `/api/regions?level=search&q=jawa`: HTTP 200, results returned.
+- Commit on `main`: `bed26a3` — polish: search highlight and status, mobile scroll-to-step, export a11y, virtual-list label.
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-ecru.vercel.app (production deployment `kode-wilayah-indonesia-1ds5x1fni-scyrptoeths-projects.vercel.app`).
+- Updated docs: `docs/development-history.md`, `docs/next-actions.md`.
+
 ## 2026-06-23 — Export hierarchy, GitHub data repo, and full delivery
 
 - Implemented **Export selected hierarchy** feature:
