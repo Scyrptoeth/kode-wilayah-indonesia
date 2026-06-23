@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   fetchRegions,
-  hierarchyToCsv,
-  hierarchyToJson,
   isRegionLevel,
   RegionDataError,
   validateRegionRequest,
 } from "./regions";
+import { hierarchyToCsv, hierarchyToJson } from "./export";
 
 describe("region data adapter", () => {
   it("loads all 38 provinces", async () => {

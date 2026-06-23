@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExportHierarchy } from "@/components/export-hierarchy";
 import { GlobalSearch, type GlobalSearchSelection } from "@/components/global-search";
 import { RegionColumn, type ColumnStatus } from "@/components/region-column";
+import type { HierarchyPath } from "@/lib/export";
 import type {
-  HierarchyPath,
   InitialSelection,
   Region,
   RegionLevel,

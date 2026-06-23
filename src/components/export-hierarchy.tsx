@@ -7,7 +7,7 @@ import {
   hierarchyToCsv,
   hierarchyToJson,
   type HierarchyPath,
-} from "@/lib/regions";
+} from "@/lib/export";
 
 interface ExportHierarchyProps {
   path: HierarchyPath;
