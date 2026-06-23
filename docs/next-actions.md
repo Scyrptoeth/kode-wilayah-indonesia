@@ -3,18 +3,6 @@
 The active list is updated after the latest development session.
 Completed or deprioritized actions are removed; only implementable work remains.
 
-## P0 — Configure Upstash Redis and admin token for feedback storage
-
-- **Outcome:** Connect the anonymous feedback pipeline to a live Upstash Redis instance and set a secure admin token so feedback can be submitted and reviewed.
-- **Why now:** The feedback panel and `/developer` dashboard are deployed, but both currently return `central_feedback_storage_not_configured` because the environment variables are missing.
-- **Prerequisite:** Vercel project `kode-wilayah-indonesia` is deployed and publicly accessible.
-- **Acceptance criteria:**
-  - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and `KODE_WILAYAH_ADMIN_TOKEN` are set as Vercel environment variables.
-  - Submitting feedback from the home page returns `ok: true`.
-  - `/developer` displays submitted feedback after entering the admin token.
-  - `/api/feedback` without a token returns HTTP 401.
-- **Risk if deferred:** The new feedback feature remains non-functional and the `/developer` page shows only the "storage not connected" state.
-
 ## P2 — Automated data refresh workflow
 
 - **Outcome:** Provide a repeatable script or GitHub Actions workflow that fetches the latest Kepmendagri release, validates counts, and opens a PR against `Scyrptoeth/wilayah-indonesia-data`.

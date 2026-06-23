@@ -2,6 +2,35 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Provision Neon Postgres and fix feedback storage
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `f70a1fd`.
+- Re-ran verification stack:
+  - `npm test` — 14/14 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed with successful GitHub data sync.
+- Source changes:
+  - Removed `@upstash/redis` and Redis storage utilities (`src/lib/centralStorage.server.ts`, `src/lib/feedbackAnalytics.server.ts`).
+  - Added `@neondatabase/serverless` and `src/lib/feedbackDatabase.server.ts` using `DATABASE_URL`/`POSTGRES_URL`.
+  - Updated `src/app/api/feedback/route.ts` to read/write feedback from Neon Postgres.
+  - Updated error messages in `src/components/anonymous-feedback.tsx` and `src/app/developer/page.tsx` to refer to the database state.
+- Infrastructure changes:
+  - Provisioned Neon Postgres resource `neon-purple-fence` via Vercel marketplace on the free_v3 plan.
+  - Connected the resource to project `kode-wilayah-indonesia` (production, preview, development).
+  - Verified `DATABASE_URL` and related environment variables are present in Vercel.
+- Verified live deployment at `https://kode-wilayah-indonesia-ecru.vercel.app` on 2026-06-23T17:46:47Z:
+  - Home (`/`): HTTP 200.
+  - `/developer`: HTTP 200.
+  - POST `/api/feedback` with message body: HTTP 200, returned persisted feedback record.
+  - GET `/api/feedback` with Bearer token: HTTP 200, returned the submitted feedback with `totalCount: 1`.
+  - GET `/api/feedback` without token: HTTP 401.
+- Commit on `main`: `f70a1fd` — fix: migrate feedback storage to Neon Postgres and provision database.
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-ecru.vercel.app (production deployment `kode-wilayah-indonesia-66iv06vcr-scyrptoeths-projects.vercel.app`).
+- Updated docs: `docs/development-history.md`, `docs/lessons-learned.md`, `docs/next-actions.md`.
+
 ## 2026-06-23 — Footer, anonymous feedback panel, and /developer dashboard
 
 - Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.

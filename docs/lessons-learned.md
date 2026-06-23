@@ -60,7 +60,7 @@ Reusable lessons are added only after a verified implementation or release resul
 
 ## 9. Optional external storage should degrade gracefully with a clear message
 
-- **Observed condition:** The anonymous feedback feature depends on Upstash Redis, but the Vercel project did not yet have the required environment variables after the first deployment.
+- **Observed condition:** The anonymous feedback feature initially depended on Upstash Redis, but the Vercel project did not yet have the required environment variables after the first deployment.
 - **Why the prior assumption was insufficient:** If the API had thrown an unhandled exception or returned a generic 500, users and developers would not know whether the feature was broken or merely unconfigured.
 - **Reusable rule:** When a feature relies on external credentials, detect the missing configuration explicitly and return a structured error code plus a user-facing message; keep the UI rendering normally so the rest of the site remains usable.
-- **Evidence:** `/api/feedback` returns HTTP 503 with `central_feedback_storage_not_configured` when Redis is unavailable; the feedback panel and `/developer` page display actionable messages instead of crashing.
+- **Evidence:** `/api/feedback` returned HTTP 503 with `central_feedback_storage_not_configured` when Redis was unavailable; after migrating to Neon Postgres, the same pattern continued with `feedback_database_not_configured` until the database was provisioned and connected.
