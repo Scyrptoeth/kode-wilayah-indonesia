@@ -9,6 +9,7 @@ import {
   WarningCircle,
 } from "@phosphor-icons/react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { VirtualList } from "@/components/virtual-list";
 import type { Region } from "@/lib/regions";
 
 export type ColumnStatus = "idle" | "loading" | "success" | "error";
@@ -29,6 +30,8 @@ interface RegionColumnProps {
   onRetry: () => void;
   mobileActive?: boolean;
   mobileStepIndex?: number;
+  virtualizeThreshold?: number;
+  virtualize?: boolean;
 }
 
 function SkeletonList() {
@@ -57,6 +60,8 @@ export function RegionColumn({
   onRetry,
   mobileActive,
   mobileStepIndex,
+  virtualizeThreshold = 100,
+  virtualize = false,
 }: RegionColumnProps) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase("id-ID"));
@@ -73,11 +78,57 @@ export function RegionColumn({
     );
   }, [deferredQuery, regions]);
 
+  const selectedIndex = useMemo(
+    () => filteredRegions.findIndex((region) => region.code === selectedCode),
+    [filteredRegions, selectedCode],
+  );
+
+  const shouldVirtualize = virtualize && filteredRegions.length > virtualizeThreshold;
+
   useEffect(() => {
-    if (!mobileActive || mobileStepIndex === undefined) return;
+    if (!mobileActive || mobileStepIndex === undefined || shouldVirtualize) return;
     const activeButton = listRef.current?.querySelector<HTMLElement>(".region-select[aria-current='true']");
     activeButton?.scrollIntoView({ block: "nearest" });
-  }, [mobileActive, mobileStepIndex, regions, selectedCode]);
+  }, [mobileActive, mobileStepIndex, regions, selectedCode, shouldVirtualize]);
+
+  function renderRegionRow(region: Region) {
+    const isSelected = selectedCode === region.code;
+    const isCopied = copiedCode === region.code;
+    return (
+      <li className={`region-row${isSelected ? " is-selected" : ""}`} key={region.code}>
+        <button
+          className="region-select"
+          type="button"
+          onClick={() => onSelect(region)}
+          aria-current={isSelected ? "true" : undefined}
+          aria-label={`Pilih ${region.name}, kode ${region.code}`}
+        >
+          <span>
+            <span className="region-name">{region.name}</span>
+            <span className="region-code" translate="no">
+              {region.code}
+            </span>
+          </span>
+          {canSelectChildren ? (
+            <CaretRight className="row-caret" size={17} aria-hidden="true" />
+          ) : null}
+        </button>
+        <button
+          className="copy-button"
+          type="button"
+          onClick={() => onCopy(region)}
+          aria-label={isCopied ? `Kode ${region.code} tersalin` : `Salin kode ${region.code}`}
+          title={isCopied ? "Kode tersalin" : "Salin kode"}
+        >
+          {isCopied ? (
+            <Check size={18} weight="bold" aria-hidden="true" />
+          ) : (
+            <CopySimple size={18} aria-hidden="true" />
+          )}
+        </button>
+      </li>
+    );
+  }
 
   return (
     <section
@@ -143,46 +194,20 @@ export function RegionColumn({
       ) : null}
 
       {status === "success" && filteredRegions.length > 0 ? (
-        <ul className="region-list" ref={listRef}>
-          {filteredRegions.map((region) => {
-            const isSelected = selectedCode === region.code;
-            const isCopied = copiedCode === region.code;
-            return (
-              <li className={`region-row${isSelected ? " is-selected" : ""}`} key={region.code}>
-                <button
-                  className="region-select"
-                  type="button"
-                  onClick={() => onSelect(region)}
-                  aria-current={isSelected ? "true" : undefined}
-                  aria-label={`Pilih ${region.name}, kode ${region.code}`}
-                >
-                  <span>
-                    <span className="region-name">{region.name}</span>
-                    <span className="region-code" translate="no">
-                      {region.code}
-                    </span>
-                  </span>
-                  {canSelectChildren ? (
-                    <CaretRight className="row-caret" size={17} aria-hidden="true" />
-                  ) : null}
-                </button>
-                <button
-                  className="copy-button"
-                  type="button"
-                  onClick={() => onCopy(region)}
-                  aria-label={isCopied ? `Kode ${region.code} tersalin` : `Salin kode ${region.code}`}
-                  title={isCopied ? "Kode tersalin" : "Salin kode"}
-                >
-                  {isCopied ? (
-                    <Check size={18} weight="bold" aria-hidden="true" />
-                  ) : (
-                    <CopySimple size={18} aria-hidden="true" />
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        shouldVirtualize ? (
+          <VirtualList
+            items={filteredRegions}
+            itemHeight={58}
+            overscan={8}
+            selectedIndex={selectedIndex >= 0 ? selectedIndex : undefined}
+            getItemKey={(region) => region.code}
+            renderItem={(region) => renderRegionRow(region)}
+          />
+        ) : (
+          <ul className="region-list" ref={listRef}>
+            {filteredRegions.map((region) => renderRegionRow(region))}
+          </ul>
+        )
       ) : null}
     </section>
   );
