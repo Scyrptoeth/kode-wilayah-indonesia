@@ -2,6 +2,33 @@
 
 Verified development entries are appended by the `update-kode-wilayah-indonesia` workflow.
 
+## 2026-06-23 — Footer, anonymous feedback panel, and /developer dashboard
+
+- Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
+- `git status --short` clean at commit `df56a05`.
+- Re-ran verification stack:
+  - `npm test` — 14/14 tests passed.
+  - `npm run lint` — passed.
+  - `npm run typecheck` — passed.
+  - `npm run build` — passed with successful GitHub data sync.
+- Source changes:
+  - Added `@upstash/redis` dependency and Redis-based central storage utilities (`src/lib/centralStorage.server.ts`, `src/lib/feedbackAnalytics.server.ts`).
+  - Added `src/lib/feedback.ts` and `src/lib/feedbackSync.ts` for feedback normalization and client/server sync.
+  - Added `src/app/api/feedback/route.ts` with POST (anonymous) and GET (Bearer token) endpoints.
+  - Added `src/components/anonymous-feedback.tsx` and placed it on the home page above the footer.
+  - Added `src/components/site-footer.tsx` replacing the inline footer in `src/app/layout.tsx`.
+  - Added `src/app/developer/page.tsx` for viewing all anonymous feedback with an admin token.
+  - Added responsive styles for the feedback panel, footer, and developer page in `src/app/globals.css`.
+- Verified live deployment at `https://kode-wilayah-indonesia-ecru.vercel.app` on 2026-06-23T17:22:26Z:
+  - Home (`/`): HTTP 200.
+  - `/developer`: HTTP 200.
+  - `/api/feedback` (POST and GET): HTTP 503 with `central_feedback_storage_not_configured` because Upstash Redis and admin token are not yet configured in Vercel.
+- Commit on `main`: `df56a05` — feat: add footer, anonymous feedback panel, and /developer dashboard.
+- Pushed to GitHub: https://github.com/Scyrptoeth/kode-wilayah-indonesia
+- Deployed to Vercel: https://kode-wilayah-indonesia-ecru.vercel.app (production deployment `kode-wilayah-indonesia-8itn4obss-scyrptoeths-projects.vercel.app`).
+- Updated docs: `docs/development-history.md`, `docs/lessons-learned.md`, `docs/next-actions.md`.
+- Note: Feedback storage requires `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, and `KODE_WILAYAH_ADMIN_TOKEN` environment variables to be set in Vercel.
+
 ## 2026-06-23 — Polish search, mobile wizard, export accessibility, and virtual list
 
 - Confirmed repository identity: `Scyrptoeth/kode-wilayah-indonesia`.
