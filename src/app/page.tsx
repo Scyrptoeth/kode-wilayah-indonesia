@@ -126,7 +126,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         <strong>Sumber data</strong>
         <p>
           Dataset berasal dari Kepmendagri No 300.2.2-2138 Tahun 2025 yang dikelola secara mandiri
-          di Scyrptoeth/wilayah-indonesia-data. Kode wilayah disajikan sebagai referensi;
+          oleh Pengembang. Kode wilayah disajikan sebagai referensi;
           verifikasi kembali dengan sumber pemerintah resmi untuk penggunaan kritis.
         </p>
       </aside>
